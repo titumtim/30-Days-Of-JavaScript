@@ -5,24 +5,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lo To Online</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <h1>Welcome to Lo To Online</h1>
     <h2>luat choi</h2>
-    <p>there will be 5 prize number, if 5 number create a straight line in your ticket => you won</p>
+    <p>there will be 5 prize number, if 5 number create a straight line in your ticket => you won <br>
+        if 3 then x5
+        if 4 then x10
+        if 5 then x50
+    </p>
+    <div>money left: <span id="money">1000000</span>$</div>
+    <label for="bet">bet Amount</label>
+    <input type="number" id="bet" min="0" max="10000" step="5" value="10000">
     <button id="start">start?</button>
+    <script src="test.js"></script>
+    <!-- core -->
     <script>
-        let start = document.querySelector('button')
-        start.addEventListener('click', (e) => {
+        let idsInterval = []
+        let items = []
 
-            if (document.querySelector('#game'))
+        let start = document.querySelector('button')
+        let bet = document.querySelector("#bet");
+        let money = document.querySelector("#money")
+        let preMoney = 1000000;
+        let playtime = { winTime: 0, loseTime: 0, playTime: 0 }
+        start.addEventListener('click', (e) => {
+            let betAmount = bet.value;
+            if (!betAmount) {
+                alert("bet something")
+                return;
+            }
+            playtime.playTime++;
+            preMoney -= betAmount;
+            money.textContent = preMoney
+            if (idsInterval.length > 0) {
+                for (id of idsInterval) {
+                    clearInterval(id)
+                }
+                idsInterval = []
+            }
+            if (document.querySelector('#game')) {
                 document.body.removeChild(document.querySelector('#game'))
+                items = [];
+            }
             let prizeNumers = genPrizeNumber();
             let container = document.createElement('div');
             container.id = 'game'
             container.style.display = 'flex';
-            container.style.width = '500px'
+            container.style.width = '600px'
             container.style.height = '500px'
             container.style.margin = 'auto'
             container.style.justifyContent = 'center'
@@ -37,7 +69,6 @@
                     ticketNumber.push(num)
                 }
             }
-
             for (let i = 0; i < 25; i++) {
                 let item = document.createElement('div');
                 item.textContent = ticketNumber[i];
@@ -48,11 +79,40 @@
                 } else {
                     item.style.backgroundColor = 'yellow'
                 }
+                items.push(item)
                 container.appendChild(item)
             }
 
             document.body.appendChild(container)
+            let outCome = checkOutcome(prizeNumers, ticketNumber)
+            if (outCome) {
+                console.log("win")
+                // console.log(outCome)
+                for (let node of items) {
+                    if (outCome.includes(Number(node.textContent))) {
+                        let id = setInterval(() => {
+                            if (node.style.backgroundColor == 'green')
+                                node.style.backgroundColor = "red"
+                            else
+                                node.style.backgroundColor = "green"
+                        }, 200)
+                        idsInterval.push(id)
+                    }
+                }
+                let winAmounnt = betAmount * (outCome.length == 3
+                    ? 5
+                    : outCome.length == 4
+                        ? 10
+                        : 50)
+                preMoney += winAmounnt
+                console.log(winAmounnt)
+                money.textContent = preMoney;
+                playtime.winTime++;
 
+            } else {
+                console.log("lose")
+                playtime.loseTime++;
+            }
         })
 
         function genPrizeNumber() {
@@ -62,10 +122,43 @@
                 if (!output.includes(num))
                     output.push(num)
             }
-            console.log(output)
+            // console.log('prize: ' + output)
             return output
         }
+        function checkOutcome(prizeNumbers, ticketNumbers) {
+            // Check for straight line win
+            const winningLines = [
+                [ticketNumbers[0], ticketNumbers[1], ticketNumbers[2], ticketNumbers[3], ticketNumbers[4]], //first line
+                [ticketNumbers[5], ticketNumbers[6], ticketNumbers[7], ticketNumbers[8], ticketNumbers[9]], //second line
+                [ticketNumbers[10], ticketNumbers[11], ticketNumbers[12], ticketNumbers[13], ticketNumbers[14]], //third line
+                [ticketNumbers[15], ticketNumbers[16], ticketNumbers[17], ticketNumbers[18], ticketNumbers[19]], // Fourth row
+                [ticketNumbers[20], ticketNumbers[21], ticketNumbers[22], ticketNumbers[23], ticketNumbers[24]], // Fifth row
+                [ticketNumbers[0], ticketNumbers[5], ticketNumbers[10], ticketNumbers[15], ticketNumbers[20]], // Left column
+                [ticketNumbers[1], ticketNumbers[6], ticketNumbers[11], ticketNumbers[16], ticketNumbers[21]], // Second column
+                [ticketNumbers[2], ticketNumbers[7], ticketNumbers[12], ticketNumbers[17], ticketNumbers[22]], // Third column
+                [ticketNumbers[3], ticketNumbers[8], ticketNumbers[13], ticketNumbers[18], ticketNumbers[23]], // Fourth column
+                [ticketNumbers[4], ticketNumbers[9], ticketNumbers[14], ticketNumbers[19], ticketNumbers[24]], // Right column
+                [ticketNumbers[0], ticketNumbers[6], ticketNumbers[12], ticketNumbers[18], ticketNumbers[24]], // Diagonal from top-left to bottom-right
+                [ticketNumbers[4], ticketNumbers[8], ticketNumbers[12], ticketNumbers[16], ticketNumbers[20]] // Diagonal from top-right to bottom-left
+            ];
+
+            for (const line of winningLines) {
+                let checks = line.filter(el => prizeNumbers.includes(el))
+                if (checks.length >= 3) {
+                    // console.log("checks: " + checks)
+                    let childArrays = getChildArrays(line, 2)
+                    // console.log(childArrays)
+                    // console.log(childArrays.join(' '))
+                    // console.log(checks.join())
+                    for (childArr of childArrays) {
+                        if (childArr.join() == checks.join()) return checks
+                    }
+                }
+            }
+            return false
+        }
     </script>
+
 </body>
 
 </html>

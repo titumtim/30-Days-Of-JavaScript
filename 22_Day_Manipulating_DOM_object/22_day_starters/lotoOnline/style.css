@@ -1,0 +1,19 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#game>div {
+    margin: 8px;
+    padding: 4px;
+    text-align: center;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    box-shadow: 2px 2px 2px 2px black;
+}
+
+#game>div:hover {
+    transform: scale(1.1);
+}
