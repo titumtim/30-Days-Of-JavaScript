@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lo To Online</title>
+</head>
+
+<body>
+    <h1>Welcome to Lo To Online</h1>
+    <h2>luat choi</h2>
+    <p>there will be 5 prize number, if 5 number create a straight line in your ticket => you won</p>
+    <button id="start">start?</button>
+    <script>
+        let start = document.querySelector('button')
+        start.addEventListener('click', (e) => {
+
+            if (document.querySelector('#game'))
+                document.body.removeChild(document.querySelector('#game'))
+            let prizeNumers = genPrizeNumber();
+            let container = document.createElement('div');
+            container.id = 'game'
+            container.style.display = 'flex';
+            container.style.width = '500px'
+            container.style.height = '500px'
+            container.style.margin = 'auto'
+            container.style.justifyContent = 'center'
+            container.style.alignItems = 'center'
+            container.style.flexWrap = 'wrap'
+
+
+            let ticketNumber = []
+            while (ticketNumber.length < 25) {
+                let num = Math.floor(Math.random() * 25) + 1;
+                if (!ticketNumber.includes(num)) {
+                    ticketNumber.push(num)
+                }
+            }
+
+            for (let i = 0; i < 25; i++) {
+                let item = document.createElement('div');
+                item.textContent = ticketNumber[i];
+                item.style.width = '100px'
+                item.style.height = '100px'
+                if (prizeNumers.includes(ticketNumber[i])) {
+                    item.style.backgroundColor = 'green'
+                } else {
+                    item.style.backgroundColor = 'yellow'
+                }
+                container.appendChild(item)
+            }
+
+            document.body.appendChild(container)
+
+        })
+
+        function genPrizeNumber() {
+            let output = [];
+            while (output.length < 5) {
+                let num = Math.floor(Math.random() * 25) + 1
+                if (!output.includes(num))
+                    output.push(num)
+            }
+            console.log(output)
+            return output
+        }
+    </script>
+</body>
+
+</html>
